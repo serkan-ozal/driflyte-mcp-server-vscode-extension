@@ -1,0 +1,41 @@
+name: NPM Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required for creating GitHub releases
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_ACCESS_TOKEN }}
+      - name: Configure Git User
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: https://registry.npmjs.org
+      - name: NPM Install
+        run: npm ci
+      - name: NPM Compile
+        run: npm run compile
+      - name: VSIX Package
+        run: npm run package
+      - name: Publish to Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCODE_PUBLISH_ACCESS_TOKEN }}
+        run: npm run publish
+      - name: Find VSIX filename
+        id: vsix
+        run: echo "file=$(ls *.vsix)" >> $GITHUB_OUTPUT
+      - name: Upload .vsix artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.vsix.outputs.file }}
+          path: ${{ steps.vsix.outputs.file }}

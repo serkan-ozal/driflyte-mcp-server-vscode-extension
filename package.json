@@ -1,0 +1,53 @@
+{
+  "name": "driflyte-mcp-server-vscode-extension",
+  "displayName": "Drifltyte - VSCode Extension",
+  "description": "Drifylte VSCode extension which exposes tools that allow AI assistants to query and retrieve topic-specific knowledge from recursively crawled and indexed web pages.",
+  "version": "0.0.1",
+  "publisher": "Driflyte",
+  "private": false,
+  "icon": "driflyte.png",
+  "license": "MIT",
+  "repository": "https://github.com/serkan-ozal/driflyte-mcp-server-vscode-extension",
+  "engines": {
+    "vscode": "^1.101.0"
+  },
+  "categories": [
+    "AI",
+    "Chat"
+  ],
+  "keywords": [
+    "mcp-server",
+    "web-crawler",
+    "ai",
+    "llm",
+    "opentelemetry"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "driflyte",
+        "label": "Driflyte"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package",
+    "download-api": "dts dev",
+    "postdownload-api": "dts main",
+    "postinstall": "npm run download-api",
+    "publish": "vsce publish"
+  },
+  "dependencies": {
+    "@driflyte/mcp-server": "0.1.15"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@vscode/dts": "^0.4.1",
+    "@vscode/vsce": "^3.6.2",
+    "typescript": "^5.8.3"
+  }
+}
