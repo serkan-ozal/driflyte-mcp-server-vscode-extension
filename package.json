@@ -2,7 +2,7 @@
   "name": "driflyte-mcp-server-vscode-extension",
   "displayName": "Drifltyte - VSCode Extension",
   "description": "Drifylte VSCode extension which exposes tools that allow AI assistants to query and retrieve topic-specific knowledge from recursively crawled and indexed web pages.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "Driflyte",
   "private": false,
   "icon": "driflyte.png",
