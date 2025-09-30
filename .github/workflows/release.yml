@@ -37,7 +37,10 @@ jobs:
         run: npm version ${{ inputs.version_scale }} --no-git-tag-version
       - name: Read new version
         id: ver
-        run: echo "version=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
       - name: Commit & Push Version Bump
         run: |
           git add package.json package-lock.json || true
