@@ -1,7 +1,17 @@
-name: NPM Release
+name: VSCode Marketplace Release
 
 on:
   workflow_dispatch:
+    inputs:
+      version_scale:
+        type: choice
+        description: "Version scale"
+        required: true
+        default: "patch"
+        options:
+          - patch
+          - minor
+          - major
 
 jobs:
   build:
@@ -23,6 +33,16 @@ jobs:
           registry-url: https://registry.npmjs.org
       - name: NPM Install
         run: npm ci
+      - name: Bump Version
+        run: npm version ${{ inputs.version_scale }} --no-git-tag-version
+      - name: Read new version
+        id: ver
+        run: echo "version=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+      - name: Commit & Push Version Bump
+        run: |
+          git add package.json package-lock.json || true
+          git commit -m "chore(release): v${{ steps.ver.outputs.version }}"
+          git push
       - name: NPM Compile
         run: npm run compile
       - name: VSIX Package
@@ -31,11 +51,18 @@ jobs:
         env:
           VSCE_PAT: ${{ secrets.VSCODE_PUBLISH_ACCESS_TOKEN }}
         run: npm run publish
+      - name: Create and Push Tag
+        run: |
+          git tag "v${{ steps.ver.outputs.version }}"
+          git push origin "v${{ steps.ver.outputs.version }}"
       - name: Find VSIX filename
         id: vsix
         run: echo "file=$(ls *.vsix)" >> $GITHUB_OUTPUT
-      - name: Upload .vsix artifact
-        uses: actions/upload-artifact@v4
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: ${{ steps.vsix.outputs.file }}
-          path: ${{ steps.vsix.outputs.file }}
+          name: ${{ format('Release {0}', steps.ver.outputs.version) }}
+          tag_name: v${{ steps.ver.outputs.version }}
+          body: ${{ format('Release {0}', steps.ver.outputs.version) }}
+          files: |
+            ${{ steps.vsix.outputs.file }}
